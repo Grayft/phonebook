@@ -1,4 +1,3 @@
-from typing import List, Dict
 from abc import ABC, ABCMeta, abstractmethod
 from manager import AbstractManager, DefaultManager
 from utils import get_executable_func_name
@@ -7,6 +6,7 @@ from loaders import JSONReader, JSONWriter
 
 class AbstractModel(ABC):
     """Абстрактный класс модели данных."""
+
     @property
     @abstractmethod
     def objects(self):

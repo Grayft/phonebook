@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 from utils import get_executable_func_name
 import json
 
+
 class AbstractReader(ABC):
     """Абстрактный класс для загрузки данных из файла."""
+
     @classmethod
     @abstractmethod
     def read(cls, file_name: str) -> list[dict]:
@@ -15,6 +17,7 @@ class AbstractReader(ABC):
 
 class AbstractWriter(ABC):
     """Абстрактный класс для записи данных в файл."""
+
     @classmethod
     @abstractmethod
     def write(cls, file_name: str) -> None:
