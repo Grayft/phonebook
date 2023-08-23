@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class AbstractManager(ABC):
     @abstractmethod
-    def __init__(self, model: type, data: list[dict]):
+    def __init__(self, model: type, data: list[dict] = None):
         pass
 
     @abstractmethod
@@ -19,15 +19,15 @@ class AbstractManager(ABC):
         pass
 
     @abstractmethod
-    def delete(self, obj) -> None:
+    def delete(self, obj: BaseModel) -> None:
         """Удаляет обьект из структуры данных"""
         pass
 
     @abstractmethod
-    def filter(self):
+    def filter(self, **kwargs) -> list:
         pass
 
-    def update_obj_place(self):
+    def update_obj_place(self, obj: BaseModel) -> None:
         """Обновляет положение объекта в структуре данных
         Метод необходимо вызвать, если данные объекта были обновлены"""
         pass
@@ -36,11 +36,12 @@ class AbstractManager(ABC):
 class DefaultManager(AbstractManager):
     """Менеджер данных по умолчанию хранит данные в списке"""
 
-    def __init__(self, model: BaseModel, data: list[dict]) -> None:
+    def __init__(self, model: BaseModel, data: list[dict] = None):
         self.model = model
-        self.structure = SortedList()
-        for obj in data:
-            self.create(obj)
+        self.structure = SortedList(self.model._sorted_fields.default)
+        if data:
+            for obj in data:
+                self.create(obj)
 
     def all(self) -> list:
         return self.structure.structure_in_list()
@@ -53,20 +54,26 @@ class DefaultManager(AbstractManager):
     def delete(self, obj: BaseModel) -> None:
         self.structure.delete(obj)
 
-    def filter(self, **kwargs) -> list[BaseModel]:
-        raise NotImplementedError(
-            f'{get_executable_func_name()} in class: {self.__class__}')
-
     def update_obj_place(self, obj: BaseModel) -> None:
         self.structure.update_obj_place(obj)
 
+    def filter(self, **kwargs) -> list[BaseModel]:
+        find_keys = set(kwargs.keys())
+        model_fields = set(self.model.model_fields.keys())
+        invalid_keys = find_keys.difference(model_fields)
+        if invalid_keys:
+            raise KeyError(
+                f'В объекте {self.model} нет таких полей: {invalid_keys}')
 
-class BinaryTreeManager(DefaultManager):
-    pass
+        return self.structure.filter(**kwargs)
 
 
 class AbstractSortedDataStructure(ABC):
     """Абстрактный класс сортированной структуры данных"""
+
+    def __init__(self, order_by: list):
+        self.order_by = order_by
+
     @abstractmethod
     def add(self, obj: BaseModel) -> None:
         """Добавляет новый элемент в структуру данных"""
@@ -82,10 +89,16 @@ class AbstractSortedDataStructure(ABC):
         """Возвращает структуру данных в виде списка"""
         pass
 
+    @abstractmethod
+    def filter(self, **kwargs) -> list:
+        """Фильтрует объекты с учетом сортировки."""
+        pass
+
 
 class SortedList(AbstractSortedDataStructure):
-    def __init__(self):
+    def __init__(self, order_by: list):
         self.sorted_list = []
+        self.order_by = order_by
 
     def structure_in_list(self):
         return self.sorted_list
@@ -105,3 +118,16 @@ class SortedList(AbstractSortedDataStructure):
         self.delete(obj)
         self.add(obj)
 
+    def filter(self, **kwargs):
+        result = []
+        for obj in self.sorted_list:
+            filter_flag = True
+            for key, val in kwargs.items():
+                if getattr(obj, key) != val:
+                    filter_flag = False
+                    break
+                if key == self.order_by[0] and val > getattr(obj, key):
+                    return result
+            if filter_flag:
+                result.append(obj)
+        return result

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 import re
 
 
@@ -10,6 +10,11 @@ class Person(BaseModel):
     organization_name: str
     work_phone_number: str
     mobile_phone_number: str
+
+    _sorted_fields: list = ['last_name', 'first_name', 'middle_name']
+
+    def __str__(self):
+        return f'{self.last_name} {self.first_name} {self.middle_name}'
 
     @field_validator('last_name', 'middle_name', 'first_name')
     @classmethod

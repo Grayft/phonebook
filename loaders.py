@@ -36,6 +36,6 @@ class JSONReader(AbstractReader):
 
 class JSONWriter(AbstractWriter):
     @classmethod
-    def write(cls, data, file_name: str) -> None:
+    def write(cls, data: list, file_name: str) -> None:
         with open(file_name, 'w') as file:
             json.dump(data, file)

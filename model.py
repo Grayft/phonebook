@@ -50,17 +50,19 @@ class AbstractModel(ABC):
 
 
 class Model(AbstractModel):
-    def __init__(self, model: type, file_name_to_read: str,
+    def __init__(self, model: type, file_name_to_read: str = None,
                  manager: type = None):
         self.model = model
-        self.file_name_to_read = file_name_to_read
+        if not manager and not file_name_to_read:
+            self._manager = DefaultManager(model)
+            return
 
+        self.file_name_to_read = file_name_to_read
         self._data = self._get_data()
-        if manager is None:
+        if not manager:
             self._manager = DefaultManager(model, self._data)
-        elif isinstance(manager, type):
-            if AbstractManager in manager.mro():
-                self._manager = manager(model, self._data)
+        elif AbstractManager in manager.mro():
+            self._manager = manager(model, self._data)
         else:
             raise AssertionError(
                 "Параметр 'manager' должен быть либо пустым, "
@@ -72,7 +74,8 @@ class Model(AbstractModel):
 
     def save_into_file(self, file_name_to_write: str) -> None:
         file_writer = self._get_file_writer(file_name_to_write)
-        file_writer.write(self, file_name_to_write)
+        data = [obj.model_dump() for obj in self.objects.all()]
+        file_writer.write(data, file_name_to_write)
 
     def _get_data(self) -> list[dict]:
         self._file_reader = self._get_file_reader()
