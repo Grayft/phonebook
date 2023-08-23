@@ -22,11 +22,11 @@ class Person(BaseModel):
     @field_validator('work_phone_number', 'mobile_phone_number')
     @classmethod
     def validate_mobile_phone_number(cls, value):
-        res = re.fullmatch(
+        valid_phone = re.fullmatch(
             r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$',
             value)
-        if res:
-            return res.string
+        if valid_phone:
+            return value
         raise ValueError('Некорректный номер телефона')
 
     def __eq__(self, other: Person):
