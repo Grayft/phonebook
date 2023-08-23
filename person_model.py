@@ -14,7 +14,13 @@ class Person(BaseModel):
     _sorted_fields: list = ['last_name', 'first_name', 'middle_name']
 
     def __str__(self):
-        return f'{self.last_name} {self.first_name} {self.middle_name}'
+        return (
+            f"{'*' * 15}\n"
+            f'ФИО: {self.last_name} {self.first_name} {self.middle_name}\n'
+            f'Организация: {self.organization_name}\n'
+            f'Рабочий телефон: {self.work_phone_number}\n'
+            f'Мобильный телефон: {self.mobile_phone_number}\n'
+        )
 
     @field_validator('last_name', 'middle_name', 'first_name')
     @classmethod

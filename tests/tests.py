@@ -131,7 +131,7 @@ class TestModel:
                        'work_phone_number': '89433452323',
                        'mobile_phone_number': '89433452323'
                        })
-        mo = Model(Person, 'my_data.json')
+        mo = Model(Person, 'phonebook_data.json')
         mo.objects.structure.add(p1)
         assert p1 in mo.objects.all(), 'p'
         p2 = mo.objects.filter(mobile_phone_number='89433452323')[0]

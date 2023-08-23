@@ -1,11 +1,11 @@
-"""Описание возможностей программы
+"""
+Начало работы с программой
 
 Создание модели данных телефонного справочника:
-#создает объекты Person по данным из файла 'my_data.json'
-model_1 = Model(Person, 'my_data.json')
-
-#Можно создать новую модель, которая работает отдельно от model_1
-model_2 = Model(Person, 'my_data.json')
+#создает объекты Person по данным из файла 'phonebook_data.json'
+model_1 = Model(Person, 'phonebook_data.json')
+#Можно создать пустую модель
+model_2 = Model(Person)
 
 Работа с данными происходит через метод objects
 #Выводит все объекты
@@ -22,13 +22,15 @@ model_1.objects.delete(some_object)
 updated_person = model_1.objects.all()[0]
 updated_person.last_name = 'Петров'
 model_1.objects.update_obj_place(updated_object)
+
+#Сохраняет модель в отдельный файл
+model_1.save_into_file('my_data_out.json')
 """
 
 from model import Model
 from person_model import Person
 
-
 if __name__ == '__main__':
-    person_model = Model(Person, 'my_data.json')
-    # person_model.objects.all().
-    pass
+    person_model = Model(Person, 'phonebook_data.json')
+
+    person_model.objects.print_by_page(25)
